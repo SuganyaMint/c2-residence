@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+  timezone = "Asia/Bangkok"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model userTable {
+  id       Int    @id @default(autoincrement())
+  userName String @unique
+  password String
+  name     String
+  surname  String
+  phone    String
+  role     String
+}
+
+model loginHistory {
+  id         Int      @id @default(autoincrement())
+  userName   String   @unique
+  loginDate  DateTime
+  logoutDate DateTime
+}
+
+model project {
+  id          Int      @id @default(autoincrement())
+  projectID   String   @unique
+  projectName String
+  budget      Int
+  totalActual Int
+  remark      String
+  status      Int
+  area        String
+  date        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model actualDetail {
+  id             Int      @id @default(autoincrement())
+  actualDetailID String   @unique
+  projectID      String
+  actualValue    Int
+  actualType     String
+  remark         String
+  date           String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

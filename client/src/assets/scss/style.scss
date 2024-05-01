@@ -1,0 +1,14 @@
+.logo {
+  height: 32px;
+  margin: 16px;
+  box-shadow: 0 0 20px rgb(192 219 255 / 15%), 0 0 20px rgb(65 120 255 / 24%);
+  h2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background: linear-gradient(to right, #30cfd0, #30cfd0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
