@@ -214,27 +214,14 @@ const getSummaryAcualCost = async (req, res) => {
         }
       });
     });
-    const typeAcual = ["ค่าแรง", "วัสดุ", "เครื่องจักร", "อื่นๆ"];
+    const typeAcual = [
+      "ค่าแรง",
+      "วัสดุ",
+      "เครื่องจักร",
+      "ค่าดำเนินการ",
+      "อื่นๆ",
+    ];
 
-    // const summedValues = {};
-
-    // // สร้างโครงสร้างข้อมูลเริ่มต้นสำหรับการรวม
-    // typeAcual.forEach((type) => {
-    //   summedValues[type] = {};
-    // });
-
-    // // แบ่งแยกข้อมูลและรวมค่าแต่ละประเภทแยกตามโครงการ
-    // actualDetail.forEach((item) => {
-    //   const { actualType, projectName, actualValue } = item;
-    //   if (typeAcual.includes(actualType)) {
-    //     if (!summedValues[actualType][projectName]) {
-    //       summedValues[actualType][projectName] = 0;
-    //     }
-    //     summedValues[actualType][projectName] += actualValue;
-    //   }
-    // });
-
-    //sort by projectID:
     actualDetail.sort((a, b) => (a.projectID > b.projectID ? 1 : -1));
     const reversedData = {};
     actualDetail.forEach((item) => {
@@ -248,6 +235,7 @@ const getSummaryAcualCost = async (req, res) => {
             วัสดุ: 0,
             เครื่องจักร: 0,
             อื่นๆ: 0,
+            ค่าดำเนินการ: 0,
           };
         }
         // เพิ่มค่า actualValue เข้าไปใน reversedData[projectName][actualType]
@@ -257,18 +245,26 @@ const getSummaryAcualCost = async (req, res) => {
 
     const budget = {};
     const totalActual = {};
+    const status = {};
+    const year = {};
     project.map((item) => {
+      // console.log(item);
       budget[item.projectName] = item.budget;
       totalActual[item.projectName] = item.totalActual;
+      status[item.projectName] = item.status;
+      year[item.projectName] = new Date(item.date).getFullYear();
     });
     //เอา object budget มาใส่ใน reversedData
     for (const [key, value] of Object.entries(reversedData)) {
       value["budget"] = budget[key];
       value["totalActual"] = totalActual[key];
+      value["status"] = status[key];
+      value["year"] = year[key];
     }
+
+    // console.log(reversedData);
     res.json({
       status: true,
-      //   data1: summedValues,
       data: reversedData,
     });
   } catch (error) {
@@ -280,6 +276,194 @@ const getSummaryAcualCost = async (req, res) => {
   }
 };
 
+const getSummaryAcualCostByYear = async (req, res) => {
+  try {
+    let yearData = req.params.year;
+    let actualDetail = await prisma.actualDetail.findMany();
+    let project = await prisma.project.findMany();
+
+    project.map((item) => {
+      actualDetail.map((item2) => {
+        if (item.projectID === item2.projectID) {
+          item2.projectName = item.projectName;
+          item2.area = item.area;
+          item2.status = item.status;
+        }
+      });
+    });
+    const typeAcual = [
+      "ค่าแรง",
+      "วัสดุ",
+      "เครื่องจักร",
+      "ค่าดำเนินการ",
+      "อื่นๆ",
+    ];
+
+    actualDetail.sort((a, b) => (a.projectID > b.projectID ? 1 : -1));
+    const reversedData = {};
+    actualDetail.forEach((item) => {
+      const { actualType, projectName, actualValue } = item;
+      if (typeAcual.includes(actualType)) {
+        // ตรวจสอบว่า reversedData[projectName] มีค่าเป็น undefined หรือไม่
+        if (!reversedData[projectName]) {
+          // ถ้า reversedData[projectName] เป็น undefined ให้สร้าง object ใหม่ที่มีโครงสร้างที่ถูกต้อง
+          reversedData[projectName] = {
+            ค่าแรง: 0,
+            วัสดุ: 0,
+            เครื่องจักร: 0,
+            อื่นๆ: 0,
+            ค่าดำเนินการ: 0,
+          };
+        }
+        // เพิ่มค่า actualValue เข้าไปใน reversedData[projectName][actualType]
+        reversedData[projectName][actualType] += actualValue;
+      }
+    });
+
+    const budget = {};
+    const totalActual = {};
+    const status = {};
+    const year = {};
+    project.map((item) => {
+      // console.log(item);
+      budget[item.projectName] = item.budget;
+      totalActual[item.projectName] = item.totalActual;
+      status[item.projectName] = item.status;
+      year[item.projectName] = new Date(item.date).getFullYear();
+    });
+    //เอา object budget มาใส่ใน reversedData
+    for (const [key, value] of Object.entries(reversedData)) {
+      value["budget"] = budget[key];
+      value["totalActual"] = totalActual[key];
+      value["status"] = status[key];
+      value["year"] = year[key];
+    }
+
+    //ข้อมูลใน reversedData ตัดเอาเฉพาะข้อมูลที่มี year ตรงกับ yearData
+    const filteredData = {};
+    for (const [key, value] of Object.entries(reversedData)) {
+      if (value.year === parseInt(yearData)) {
+        filteredData[key] = value;
+      }
+    }
+    // console.log(filteredData);
+    res.json({
+      status: true,
+      data: filteredData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      status: false,
+      message: error.message,
+    });
+  }
+};
+
+const getSummaryAcualCostByYearByStatus = async (req, res) => {
+  console.log(req.params);
+  try {
+    let yearData = req.params.year;
+    let statusData = req.params.status;
+    let actualDetail = await prisma.actualDetail.findMany();
+    let project = await prisma.project.findMany();
+
+    project.map((item) => {
+      actualDetail.map((item2) => {
+        if (item.projectID === item2.projectID) {
+          item2.projectName = item.projectName;
+          item2.area = item.area;
+          item2.status = item.status;
+        }
+      });
+    });
+    const typeAcual = [
+      "ค่าแรง",
+      "วัสดุ",
+      "เครื่องจักร",
+      "ค่าดำเนินการ",
+      "อื่นๆ",
+    ];
+
+    actualDetail.sort((a, b) => (a.projectID > b.projectID ? 1 : -1));
+    const reversedData = {};
+    actualDetail.forEach((item) => {
+      const { actualType, projectName, actualValue } = item;
+      if (typeAcual.includes(actualType)) {
+        // ตรวจสอบว่า reversedData[projectName] มีค่าเป็น undefined หรือไม่
+        if (!reversedData[projectName]) {
+          // ถ้า reversedData[projectName] เป็น undefined ให้สร้าง object ใหม่ที่มีโครงสร้างที่ถูกต้อง
+          reversedData[projectName] = {
+            ค่าแรง: 0,
+            วัสดุ: 0,
+            เครื่องจักร: 0,
+            อื่นๆ: 0,
+            ค่าดำเนินการ: 0,
+          };
+        }
+        // เพิ่มค่า actualValue เข้าไปใน reversedData[projectName][actualType]
+        reversedData[projectName][actualType] += actualValue;
+      }
+    });
+
+    const budget = {};
+    const totalActual = {};
+    const status = {};
+    const year = {};
+    project.map((item) => {
+      // console.log(item);
+      budget[item.projectName] = item.budget;
+      totalActual[item.projectName] = item.totalActual;
+      status[item.projectName] = item.status;
+      year[item.projectName] = new Date(item.date).getFullYear();
+    });
+    //เอา object budget มาใส่ใน reversedData
+    for (const [key, value] of Object.entries(reversedData)) {
+      value["budget"] = budget[key];
+      value["totalActual"] = totalActual[key];
+      value["status"] = status[key];
+      value["year"] = year[key];
+    }
+
+
+    let filteredData = {};
+    if (yearData === "All project") {
+      
+        filteredData = reversedData;
+        // console.log(filteredData)
+    } else {
+        for (const [key, value] of Object.entries(reversedData)) {
+            if (value.year === parseInt(yearData)) {
+                filteredData[key] = value;
+            }
+        }
+    }
+    
+    // Step 2: Filter by statusData
+    let filteredData2 = {};
+    if (statusData === "2") {
+        filteredData2 = filteredData;
+    } else {
+        for (const [key, value] of Object.entries(filteredData)) {
+            if (value.status === parseInt(statusData) || value.status === statusData) {
+                filteredData2[key] = value;
+            }
+        }
+    }
+
+    // console.log(filteredData2);
+    res.json({
+      status: true,
+      data: filteredData2,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      status: false,
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   getActualDetail,
   getActualDetailById,
@@ -287,4 +471,6 @@ module.exports = {
   updateActualDetail,
   deleteActualDetail,
   getSummaryAcualCost,
+  getSummaryAcualCostByYear,
+  getSummaryAcualCostByYearByStatus
 };

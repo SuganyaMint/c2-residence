@@ -170,7 +170,6 @@ const deleteProject = async (req, res) => {
 
 const updateStatus = async (req, res) => {
   try {
-    console.log(req.params);
     const { status } = req.body;
     let project = await prisma.project.update({
       where: {

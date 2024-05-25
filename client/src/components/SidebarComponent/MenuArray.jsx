@@ -36,6 +36,12 @@ export const MenuArray = [
   //   getItem('Player Detail', 'playerdetail'),
   //   getItem('Guild Detail', 'guilddetail'),
   // ]),
+  {
+    key: "history",
+    icon: <DatabaseOutlined />,
+    label: "ประวัติการ login",
+  
+  },
 
   {
     key: "users",

@@ -14,8 +14,9 @@ import { ApiRouter } from "../utils/ApiRouter";
 
 function RouterIndex() {
   const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
-  const [role, setRole] = useState("");
+  const [userName, setUserName] = useState("");
+  // const [surname, setSurname] = useState("");
+  // const [role, setRole] = useState("");
 
   const token = localStorage.getItem("token");
   if (!token) {
@@ -29,11 +30,14 @@ function RouterIndex() {
       const res = await API.get(ApiRouter.authen, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       if (res.data.status === true) {
         setName(`${res.data.data.name} ${res.data.data.surname}`);
+        setUserName(res.data.data.userName);
       } else {
         localStorage.removeItem("token");
         window.location.href = "/";
+        return;
       }
     };
     fetchData();
@@ -41,9 +45,9 @@ function RouterIndex() {
 
   return (
     <Layout>
-      <SidebarComponent/>
+      <SidebarComponent />
       <Layout>
-        <NavbarComponent name={name}/>
+        <NavbarComponent name={name} userName={userName} />
         <Content
           style={{
             margin: "24px 16px 0",

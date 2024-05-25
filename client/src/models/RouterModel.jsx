@@ -4,6 +4,7 @@ import LoginPage from "../pages/LoginPage";
 import NotfoundPage from "../pages/NotfoundPage";
 import ProjectPage from "../pages/ProjectPage";
 import UserManagePage from "../pages/UserManagePage";
+import HistoryLog from "../pages/HistoryLog";
 
 export const RouterModel = [
   {
@@ -37,9 +38,15 @@ export const RouterModel = [
     routerComponent: <ProjectPage />,
   },
   {
-    id: 4,
+    id: 5,
     routerName: "Actual",
     routerPath: "/actual",
     routerComponent: <ActualProjectPage />,
+  },
+  {
+    id: 6,
+    routerName: "History",
+    routerPath: "/history",
+    routerComponent: <HistoryLog />,
   },
 ];

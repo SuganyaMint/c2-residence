@@ -157,6 +157,7 @@ function EditActualProject(props) {
                 { value: "เครื่องจักร", label: "เครื่องจักร" },
                 { value: "วัสดุ", label: "วัสดุ" },
                 { value: "ค่าแรง", label: "ค่าแรง" },
+                { value: "ค่าดำเนินการ", label: "ค่าดำเนินการ" },
                 { value: "อื่นๆ", label: "อื่นๆ" },
               ]}
               width="100%"

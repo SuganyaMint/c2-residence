@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { Layout, Button } from "antd";
 const { Header } = Layout;
 import Swal from "sweetalert2";
+import API from "../../utils/ApiUrl";
+import { ApiRouter } from "../../utils/ApiRouter";
 
-function NavbarComponent({ name }) {
+function NavbarComponent({ name, userName }) {
   const onLogout = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -12,13 +14,19 @@ function NavbarComponent({ name }) {
       showCancelButton: true,
       confirmButtonText: "Yes",
       cancelButtonText: "No",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        Swal.fire("Logout!", "You are now logged out.", "success");
-        localStorage.removeItem("token");
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 1200);
+        const res = await API.put(ApiRouter.logout + userName);
+
+        if (res.data.status === true) {
+          Swal.fire("Logout!", "You are now logged out.", "success");
+          localStorage.removeItem("token");
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1200);
+        } else {
+          Swal.fire("Error!", "Logout failed.", "error");
+        }
       }
     });
   };
