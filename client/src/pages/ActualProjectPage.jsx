@@ -6,6 +6,7 @@ import { ApiRouter } from "../utils/ApiRouter";
 import Swal from "sweetalert2";
 import EditActualProject from "../components/ActualProject/EditActualProject";
 import CreateActualProject from "../components/ActualProject/CreateActualProject";
+import ExportComponent from "../components/ExportComponent";
 const { Title, Paragraph } = Typography;
 
 function ActualProjectPage() {
@@ -119,8 +120,18 @@ function ActualProjectPage() {
         </>
       ) : (
         <>
+        
           <Title level={2}>รายละเอียดค่าใช้จ่ายโครงการ</Title>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "20px",
+            }}
+          >
           <CreateActualProject setIsSubmit={setIsSubmit} />
+          <ExportComponent data={data} type="detail" />
+          </div>
           <div
             style={{
               display: "flex",

@@ -5,6 +5,7 @@ import NotfoundPage from "../pages/NotfoundPage";
 import ProjectPage from "../pages/ProjectPage";
 import UserManagePage from "../pages/UserManagePage";
 import HistoryLog from "../pages/HistoryLog";
+import BackofficePage from "../pages/BackofficePage";
 
 export const RouterModel = [
   {
@@ -48,5 +49,11 @@ export const RouterModel = [
     routerName: "History",
     routerPath: "/history",
     routerComponent: <HistoryLog />,
+  },
+  {
+    id: 7,
+    routerName: "Backoffice",
+    routerPath: "/back-office",
+    routerComponent: <BackofficePage />,
   },
 ];

@@ -90,8 +90,9 @@ const createProject = async (req, res) => {
   }
 };
 const updateProject = async (req, res) => {
+  console.log(req.body)
   try {
-    const { projectName, budget, totalActual, remark, date} = req.body;
+    const { projectName, budget, totalActual, remark, date , area} = req.body;
 
     let project = await prisma.project.update({
       where: {
@@ -102,7 +103,9 @@ const updateProject = async (req, res) => {
         budget,
         totalActual,
         remark,
-        date
+        date,
+        area
+    
       },
     });
     if (project) {

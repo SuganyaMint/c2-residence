@@ -19,8 +19,8 @@ model userTable {
 }
 
 model loginHistory {
-  id         Int      @id @default(autoincrement())
-  userName   String   
+  id         Int    @id @default(autoincrement())
+  userName   String
   loginDate  String
   logoutDate String
 }
@@ -49,4 +49,29 @@ model actualDetail {
   date           String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model office_master {
+  id          Int      @id @default(autoincrement())
+  projectID    String   @unique
+  projectName String
+  detail      String
+  total_qty   String
+  qty         String
+  remark      String
+  month       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model office_detail {
+  id          Int      @id @default(autoincrement())
+  projectID    String
+  detail      String
+  qty         String
+  remain      String
+  remark      String
+  month       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

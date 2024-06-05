@@ -7,6 +7,7 @@ const moment = require("moment");
 
 const login = async (req, res) => {
   try {
+    console.log(req.body);
     let userName = req.body.userName;
     let password = req.body.password;
 

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import API from "../../utils/ApiUrl";
 import { ApiRouter } from "../../utils/ApiRouter";
 import {
-  BarChart,
-  Bar,
+  Area,
   Line,
   XAxis,
   YAxis,
@@ -12,21 +11,19 @@ import {
   Legend,
   ResponsiveContainer,
   ComposedChart,
-  Cell,
-  LabelList,
 } from "recharts";
 import imgStatus1 from "../../assets/icon/green.png";
 import imgStatus2 from "../../assets/icon/ye.png";
 import { Select } from "antd";
 
-function AllProjectChart2() {
+function RemainChart() {
   const [actualData, setActualData] = useState([]);
   const [allProject, setAllProject] = useState([]);
   const currentYear = new Date().getFullYear();
   const [yearOption, setYearOption] = useState([
     { value: currentYear, label: currentYear },
   ]);
-  const [selectedYear, setSelectedYear] = useState('All project');
+  const [selectedYear, setSelectedYear] = useState(currentYear);
   const [projectStatus, setProjectStatus] = useState(2);
 
   const handleChange = async (value) => {
@@ -89,13 +86,32 @@ function AllProjectChart2() {
     ค่าดำเนินการ: actualData[project]["ค่าดำเนินการ"],
     อื่นๆ: actualData[project]["อื่นๆ"],
     งบประมาณ: actualData[project]["budget"],
-    totalActual: actualData[project]["totalActual"],
+    ค่าใช้จ่าย: actualData[project]["totalActual"],
     status: actualData[project]["status"],
     remain: actualData[project]["budget"] - actualData[project]["totalActual"],
   }));
 
   const tooltipFormatter = (value, name) => [value.toLocaleString(), name];
-
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const { งบประมาณ, ค่าใช้จ่าย } = payload[0].payload;
+      return (
+        <div className="custom-tooltip" style={{ backgroundColor: 'white', border: '1px solid #ccc', padding: '10px' }}>
+          <p className="label">{`${label}`}</p>
+          {payload.map((entry, index) => (
+            <p key={`item-${index}`} style={{ color: entry.color }}>
+              {`${entry.name} : ${entry.value.toLocaleString()}`}
+            </p>
+          ))}
+          <p style={{ color: 'black' }}>{`งบประมาณ : ${งบประมาณ.toLocaleString()}`}</p>
+          <p style={{ color: 'black' }}>{`ค่าใช้จ่าย : ${ค่าใช้จ่าย.toLocaleString()}`}</p>
+       
+        </div>
+      );
+    }
+  
+    return null;
+  };
   const CustomTick = ({ x, y, payload, index, data }) => {
     const item = data[index];
     return (
@@ -111,23 +127,24 @@ function AllProjectChart2() {
       </g>
     );
   };
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="custom-tooltip" style={{ backgroundColor: 'white', border: '1px solid #ccc', padding: '10px' }}>
-          <p className="label">{`${label}`}</p>
-          {payload.map((entry, index) => (
-            <p key={`item-${index}`} style={{ color: entry.color }}>
-              {`${entry.name} : ${entry.value.toLocaleString()}`}
-            </p>
-          ))}
-          <p style={{ color: 'black' }}>{`เหลือ : ${payload[0].payload.remain.toLocaleString()}`}</p>
-        </div>
-      );
+
+
+  const gradientOffset = () => {
+    const dataMax = Math.max(...data.map((i) => i.remain));
+    const dataMin = Math.min(...data.map((i) => i.remain));
+  
+    if (dataMax <= 0) {
+      return 0;
+    }
+    if (dataMin >= 0) {
+      return 1;
     }
   
-    return null;
+    return dataMax / (dataMax - dataMin);
   };
+  
+  const off = gradientOffset();
+
   return (
     <>
       <h1
@@ -136,16 +153,16 @@ function AllProjectChart2() {
           fontSize: "28px",
           fontWeight: "bold",
           color: "#293242",
-          marginTop: "10px",
+          marginTop: "80px",
           marginBottom: "20px",
         }}
       >
-        กราฟแสดงค่าใช้จ่ายแต่ละโครงการ
+        กราฟแสดง กำไร-ขาดทุน แต่ละโครงการ
       </h1>
       <div
         style={{
           width: "100%",
-          height: "700px",
+          height: "500px",
           marginBottom: "20px",
         }}
       >
@@ -156,7 +173,7 @@ function AllProjectChart2() {
           }}
         >
           <div>
-            <Select
+            {/* <Select
               defaultValue={selectedYear}
               value={selectedYear}
               style={{
@@ -178,7 +195,7 @@ function AllProjectChart2() {
                 { value: 1, label: "เสร็จสิ้นโครงการ" },
                 { value: 2, label: "ทุกสถานะ" },
               ]}
-            />
+            /> */}
           </div>
           <div>
             <div
@@ -238,85 +255,20 @@ function AllProjectChart2() {
             {/* <Tooltip formatter={tooltipFormatter} /> */}
             <Tooltip content={<CustomTooltip />} />
             <Legend />
-            <Bar
-              stackId="a"
-              dataKey="ค่าแรง"
-              stroke="#293242"
-              barSize={30}
-              fill="#F6C6C7"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} />
-              ))}
-            </Bar>
-            <Bar
-              stackId="a"
-              dataKey="เครื่องจักร"
-              stroke="#293242"
-              barSize={30}
-              fill="#82ca9d"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} />
-              ))}
-            </Bar>
-            <Bar
-              stackId="a"
-              dataKey="วัสดุ"
-              stroke="#293242"
-              barSize={30}
-              fill="#8884d8"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} />
-              ))}
-            </Bar>
-            <Bar
-              stackId="a"
-              dataKey="ค่าดำเนินการ"
-              stroke="#293242"
-              barSize={30}
-              fill="#FFBD0E"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} />
-              ))}
-            </Bar>
-            <Bar
-              stackId="a"
-              dataKey="อื่นๆ"
-              stroke="#293242"
-              barSize={30}
-              fill="#8BD2EC"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} />
-              ))}
-              <LabelList
-                dataKey="totalActual"
-                position="top"
-                //center
 
-                content={(props) => {
-                  const { x, y, value } = props;
-                  return (
-                    <text
-                      x={x}
-                      y={y}
-                      dy={-4}
-                      textAnchor="middle"
-                      fill="#293242"
-                    >
-                      {/* {value.toLocaleString()} */}
-                      {(value / 1000).toLocaleString()}k
-                    </text>
-                  );
-                }}
-              />
-            </Bar>
-            <Line type="monotone" dataKey="งบประมาณ" stroke="#ff7300"></Line>
-            {/* <Line type="monotone" dataKey="remain" stroke="#ff7300"></Line> */}
-
+            {/* <Line type="monotone" dataKey="งบประมาณ" stroke="#ff7300"></Line>
+            <Line type="monotone" dataKey="ค่าใช้จ่าย" stroke="#0068FF"></Line> */}
+            <defs>
+              <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
+                <stop offset={off} stopColor="green" stopOpacity={1} />
+                <stop offset={off} stopColor="red" stopOpacity={1} />
+              </linearGradient>
+            </defs>
+            <Area
+              type="monotone"
+              dataKey="remain"
+              fill="url(#splitColor)"
+            />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -324,4 +276,4 @@ function AllProjectChart2() {
   );
 }
 
-export default AllProjectChart2;
+export default RemainChart;

@@ -36,11 +36,15 @@ export const MenuArray = [
   //   getItem('Player Detail', 'playerdetail'),
   //   getItem('Guild Detail', 'guilddetail'),
   // ]),
+  // {
+  //   key: "back-office",
+  //   icon: <DatabaseOutlined />,
+  //   label: "Back Office",
+  // },
   {
     key: "history",
     icon: <DatabaseOutlined />,
     label: "ประวัติการ login",
-  
   },
 
   {

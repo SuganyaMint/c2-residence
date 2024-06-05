@@ -11,7 +11,7 @@ function FooterComponent() {
         target="_blank"
         rel="noopener noreferrer"
       >
-        Syganya.P
+        Suganya.P
       </a>
     </Footer>
   );
