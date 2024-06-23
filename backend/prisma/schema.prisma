@@ -29,8 +29,8 @@ model project {
   id          Int      @id @default(autoincrement())
   projectID   String   @unique
   projectName String
-  budget      Int
-  totalActual Int
+  budget      String
+  totalActual String
   remark      String
   status      Int
   area        String
@@ -43,7 +43,7 @@ model actualDetail {
   id             Int      @id @default(autoincrement())
   actualDetailID String   @unique
   projectID      String
-  actualValue    Int
+  actualValue    String
   actualType     String
   remark         String
   date           String
@@ -52,26 +52,33 @@ model actualDetail {
 }
 
 model office_master {
-  id          Int      @id @default(autoincrement())
-  projectID    String   @unique
-  projectName String
-  detail      String
-  total_qty   String
-  qty         String
-  remark      String
-  month       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                Int      @id @default(autoincrement())
+  project_office_ID String
+  detail            String
+  total_qty         String
+  qty               String
+  remark            String
+  month             String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
-model office_detail {
-  id          Int      @id @default(autoincrement())
-  projectID    String
-  detail      String
-  qty         String
-  remain      String
-  remark      String
-  month       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model office_project {
+  id                Int      @id @default(autoincrement())
+  project_office_ID String  @unique
+  projectName       String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model office_actual {
+  id                Int      @id @default(autoincrement())
+  project_office_ID String
+  detail            String
+  qty               String
+  total_qty         String
+  remark            String
+  month             String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }

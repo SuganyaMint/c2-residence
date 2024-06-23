@@ -10,12 +10,18 @@ const getActualDetail = async (req, res) => {
     project.map((item) => {
       actualDetail.map((item2) => {
         if (item.projectID === item2.projectID) {
+          item2.id = item2.id;
           item2.projectName = item.projectName;
           item2.area = item.area;
           item2.status = item.status;
+          item2.dateUpdate = moment(item2.updatedAt).format("YYYY-MM-DD HH:mm:ss");
         }
       });
     });
+
+    //sort by dateUpdate
+    actualDetail.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+
     if (actualDetail) {
       res.json({
         status: true,
@@ -71,7 +77,7 @@ const createActualDetail = async (req, res) => {
       data: {
         actualDetailID,
         projectID,
-        actualValue,
+        actualValue: String(actualValue),
         actualType,
         remark: remark || "",
         date,
@@ -84,7 +90,7 @@ const createActualDetail = async (req, res) => {
         projectID: projectID,
       },
     });
-    let totalActual = project.totalActual + actualValue;
+    let totalActual = String(parseFloat(project.totalActual) + parseFloat(actualValue));
     await prisma.project.update({
       where: {
         projectID,
@@ -116,7 +122,15 @@ const createActualDetail = async (req, res) => {
 
 const updateActualDetail = async (req, res) => {
   try {
-    const { projectID, actualValue, actualType, remark, date } = req.body;
+    const { actualValue, actualType, remark, date } = req.body;
+
+    const getOld = await prisma.actualDetail.findUnique({
+      where: {
+        id: parseInt(req.params.id),
+      },
+    });
+    let oldActualValue = parseFloat(getOld.actualValue);
+    let projectID = getOld.projectID;
 
     let actualDetail = await prisma.actualDetail.update({
       where: {
@@ -124,12 +138,32 @@ const updateActualDetail = async (req, res) => {
       },
       data: {
         projectID,
-        actualValue,
+        actualValue: String(actualValue),
         actualType,
         remark,
         date,
       },
     });
+
+    //update totalActual in project
+    let project = await prisma.project.findUnique({
+      where: {
+        projectID: projectID,
+      },
+    });
+
+    let totalActual = String(
+      parseFloat(project.totalActual) - oldActualValue + parseFloat(actualValue)
+    );
+    await prisma.project.update({
+      where: {
+        projectID,
+      },
+      data: {
+        totalActual,
+      },
+    });
+
     if (actualDetail) {
       res.json({
         status: true,
@@ -165,7 +199,7 @@ const deleteActualDetail = async (req, res) => {
         projectID,
       },
     });
-    let totalActual = project.totalActual - getactualDetail.actualValue;
+    let totalActual = String(parseFloat(project.totalActual) - parseFloat(getactualDetail.actualValue));
     await prisma.project.update({
       where: {
         projectID,
@@ -239,7 +273,7 @@ const getSummaryAcualCost = async (req, res) => {
           };
         }
         // เพิ่มค่า actualValue เข้าไปใน reversedData[projectName][actualType]
-        reversedData[projectName][actualType] += actualValue;
+        reversedData[projectName][actualType] += parseFloat(actualValue);
       }
     });
 
@@ -316,7 +350,7 @@ const getSummaryAcualCostByYear = async (req, res) => {
           };
         }
         // เพิ่มค่า actualValue เข้าไปใน reversedData[projectName][actualType]
-        reversedData[projectName][actualType] += actualValue;
+        reversedData[projectName][actualType] += parseFloat(actualValue);
       }
     });
 
@@ -325,7 +359,6 @@ const getSummaryAcualCostByYear = async (req, res) => {
     const status = {};
     const year = {};
     project.map((item) => {
-      // console.log(item);
       budget[item.projectName] = item.budget;
       totalActual[item.projectName] = item.totalActual;
       status[item.projectName] = item.status;
@@ -361,7 +394,6 @@ const getSummaryAcualCostByYear = async (req, res) => {
 };
 
 const getSummaryAcualCostByYearByStatus = async (req, res) => {
-  console.log(req.params);
   try {
     let yearData = req.params.year;
     let statusData = req.params.status;
@@ -402,7 +434,7 @@ const getSummaryAcualCostByYearByStatus = async (req, res) => {
           };
         }
         // เพิ่มค่า actualValue เข้าไปใน reversedData[projectName][actualType]
-        reversedData[projectName][actualType] += actualValue;
+        reversedData[projectName][actualType] += parseFloat(actualValue);
       }
     });
 
@@ -428,27 +460,27 @@ const getSummaryAcualCostByYearByStatus = async (req, res) => {
 
     let filteredData = {};
     if (yearData === "All project") {
-      
-        filteredData = reversedData;
-        // console.log(filteredData)
+
+      filteredData = reversedData;
+      // console.log(filteredData)
     } else {
-        for (const [key, value] of Object.entries(reversedData)) {
-            if (value.year === parseInt(yearData)) {
-                filteredData[key] = value;
-            }
+      for (const [key, value] of Object.entries(reversedData)) {
+        if (value.year === parseInt(yearData)) {
+          filteredData[key] = value;
         }
+      }
     }
-    
+
     // Step 2: Filter by statusData
     let filteredData2 = {};
     if (statusData === "2") {
-        filteredData2 = filteredData;
+      filteredData2 = filteredData;
     } else {
-        for (const [key, value] of Object.entries(filteredData)) {
-            if (value.status === parseInt(statusData) || value.status === statusData) {
-                filteredData2[key] = value;
-            }
+      for (const [key, value] of Object.entries(filteredData)) {
+        if (value.status === parseInt(statusData) || value.status === statusData) {
+          filteredData2[key] = value;
         }
+      }
     }
 
     // console.log(filteredData2);

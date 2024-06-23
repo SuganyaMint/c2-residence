@@ -49,6 +49,7 @@ function ActualProjectPage() {
     });
   };
 
+
   const columns = [
     // {
     //   title: "ID",
@@ -86,6 +87,13 @@ function ActualProjectPage() {
       title: "หมายเหตุ",
       dataIndex: "remark",
       key: "remark",
+      align: "center",
+      width: 60,
+    },
+    {
+      title: "วันที่ Update",
+      dataIndex: "dateUpdate",
+      key: "dateUpdate",
       align: "center",
       width: 60,
     },

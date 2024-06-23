@@ -5,7 +5,13 @@ const { connect } = require("../routes/ProjectRouter");
 
 const getProject = async (req, res) => {
   try {
-    let project = await prisma.project.findMany();
+    let project = await prisma.project.findMany({
+      orderBy: [
+        {
+          date: "desc",
+        },
+      ],
+    });
     if (project) {
       res.json({
         status: true,
@@ -55,14 +61,14 @@ const getProjectById = async (req, res) => {
 
 const createProject = async (req, res) => {
   try {
-    const { projectName, budget, remark, area ,date } = req.body;
+    const { projectName, budget, remark, area, date } = req.body;
     const projectID = "PROJ" + moment().format("YYYYMMDDHHmmss");
     let project = await prisma.project.create({
       data: {
         projectID,
         projectName,
-        budget,
-        totalActual: 0,
+        budget: String(budget),
+        totalActual: "0",
         remark: remark || "",
         area: area || "",
         status: 0,
@@ -90,9 +96,8 @@ const createProject = async (req, res) => {
   }
 };
 const updateProject = async (req, res) => {
-  console.log(req.body)
   try {
-    const { projectName, budget, totalActual, remark, date , area} = req.body;
+    const { projectName, budget, totalActual, remark, date, area } = req.body;
 
     let project = await prisma.project.update({
       where: {
@@ -105,7 +110,7 @@ const updateProject = async (req, res) => {
         remark,
         date,
         area
-    
+
       },
     });
     if (project) {

@@ -9,10 +9,6 @@ import EditProject from "../components/ProjectComponent/EditProject";
 import CreateProject from "../components/ProjectComponent/CreateProject";
 const { Title, Paragraph } = Typography;
 
-import * as XLSX from "xlsx";
-import { ExportOutlined } from "@ant-design/icons";
-
-import moment from "moment";
 import ExportComponent from "../components/ExportComponent";
 
 function ProjectPage() {
@@ -51,6 +47,7 @@ function ProjectPage() {
         if (res.data.status === true) {
           Swal.fire("ลบสำเร็จ!", "ข้อมูลของคุณถูกลบแล้ว.", "success");
           setIsSubmit(true);
+          
         }
       }
     });

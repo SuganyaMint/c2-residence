@@ -6,7 +6,6 @@ import moment from "moment";
 function ExportComponent(props) {
   let data = props.data;
   let type = props.type;
-  console.log(data);
 
   const exportToExcel = (data) => {
     const year = new Date().getFullYear();

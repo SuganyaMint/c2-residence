@@ -15,7 +15,7 @@ function EditUserCompinen(props) {
     setIsModalOpen(false);
   };
   const onFinish = async (values) => {
-    console.log("Success:", values);
+
     const data = {
       userName: props.data.userName,
       name: values.name == undefined ? props.data.name : values.name,

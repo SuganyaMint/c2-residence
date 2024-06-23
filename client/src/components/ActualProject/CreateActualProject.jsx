@@ -198,6 +198,7 @@ function CreateActualProject({ setIsSubmit }) {
           >
             <InputNumber
               min={0}
+              step={0.01}
               style={{
                 width: "100%",
               }}

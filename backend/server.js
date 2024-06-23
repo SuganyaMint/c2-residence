@@ -13,6 +13,11 @@ const UserRouter = require("./routes/UserRouter");
 const ProjectRouter = require("./routes/ProjectRouter");
 const ActualDetailRouter = require("./routes/ActualDetailRouter");
 
+//Back office
+const BackOfficeRouter = require("./routes/Backoffice/BackOfficeRouter");
+const BackOfficeActualRouter = require("./routes/Backoffice/BackOfficeActualRouter");
+
+
 
 dotenv.config();
 
@@ -45,6 +50,10 @@ app.use("/api/login", loginRouter);
 app.use("/api/users", UserRouter);
 app.use("/api/projects", ProjectRouter);
 app.use("/api/actual-details", ActualDetailRouter);
+app.use("/api/office", BackOfficeRouter);
+app.use("/api/office-actual", BackOfficeActualRouter);
+
+
 
 
 app.listen(process.env.PORT, () => {
